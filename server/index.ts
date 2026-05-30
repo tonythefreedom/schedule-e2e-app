@@ -26,6 +26,19 @@ async function startServer() {
     }
   });
 
+  app.get('/api/schedules/:id', async (req, res) => {
+    try {
+      const schedule = await db.get('SELECT * FROM schedules WHERE id = ?', [req.params.id]);
+      if (schedule) {
+        res.json(schedule);
+      } else {
+        res.status(404).json({ message: 'Schedule not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch schedule' });
+    }
+  });
+
   app.post('/api/chat', async (req, res) => {
     const { message } = req.body;
     
@@ -59,6 +72,11 @@ async function startServer() {
           if (analysis.query_type === 'today') {
             return s.date === new Date().toISOString().split('T')[0];
           }
+          if (analysis.query_type === 'tomorrow') {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return s.date === tomorrow.toISOString().split('T')[0];
+          }
           if (analysis.query_type === 'person') {
             return s.title.includes(analysis.person) || s.content.includes(analysis.person);
           }
@@ -74,9 +92,9 @@ async function startServer() {
         }
 
         return res.json({
-          type: 'text',
+          type: 'schedule_list',
           message: responseText,
-          weeklySchedules: schedules
+          weeklySchedules: filtered
         });
       }
 

@@ -7,14 +7,22 @@ interface CalendarProps {
 }
 
 const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => {
+  console.log('WeeklyCalendar rendering with schedules:', schedules);
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
 
+  const getLocalDateString = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(startOfWeek);
     date.setDate(startOfWeek.getDate() + i);
-    return date.toISOString().split('T')[0];
+    return getLocalDateString(date);
   });
 
   return (
@@ -31,7 +39,7 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
         {weekDays.map((dateStr) => {
           const daySchedules = schedules.filter(s => s.date === dateStr);
           const date = new Date(dateStr);
-          const isToday = dateStr === today.toISOString().split('T')[0];
+          const isToday = dateStr === getLocalDateString(today);
           const dayName = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
 
           if (daySchedules.length === 0 && !isToday) return null;
@@ -51,7 +59,7 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
                   daySchedules.map((s, idx) => (
                     <div 
                       key={idx}
-                      onClick={() => onDateClick(dateStr)}
+                      onClick={() => onDateClick(s.id)}
                       className="group cursor-pointer"
                     >
                       <div className="text-xs font-medium text-gray-800 group-hover:text-primary transition-colors">
@@ -73,7 +81,7 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
       </div>
       
       <button 
-        onClick={() => onDateClick(today.toISOString().split('T')[0])}
+        onClick={() => onDateClick(getLocalDateString(today))}
         className="w-full mt-4 py-2 text-[11px] text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors font-medium"
       >
         전체 캘린더 보기
