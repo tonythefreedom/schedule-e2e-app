@@ -5,10 +5,18 @@ import { Chat } from '../types';
 
 const DUMMY_CHATS: Chat[] = [
   {
+    id: 'agent',
+    name: '일정관리 에이전트',
+    lastMessage: '일정 관리를 도와드릴까요?',
+    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=agent',
+    timestamp: '오전 10:00',
+    isAgent: true
+  },
+  {
     id: '1',
     name: '김철수',
     lastMessage: '오늘 점심 뭐 먹을래?',
-    time: '오후 2:30',
+    timestamp: '오후 2:30',
     unreadCount: 2,
     avatar: 'https://i.pravatar.cc/150?u=1',
   },
@@ -16,14 +24,14 @@ const DUMMY_CHATS: Chat[] = [
     id: '2',
     name: '이영희',
     lastMessage: '사진 보냈어 확인해봐!',
-    time: '오전 11:20',
+    timestamp: '오전 11:20',
     avatar: 'https://i.pravatar.cc/150?u=2',
   },
   {
     id: '3',
     name: 'React 공부방',
     lastMessage: '다음 주 세미나 일정입니다.',
-    time: '어제',
+    timestamp: '어제',
     avatar: 'https://i.pravatar.cc/150?u=3',
   },
 ];
