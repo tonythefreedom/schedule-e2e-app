@@ -25,14 +25,11 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
     return new Date(year, month - 1, day);
   };
 
-  // 현재 주의 시작일(일요일) 계산
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
-
-  // 현재 주 7일의 날짜 배열 생성
+  // 다가오는 일정 브리핑: 오늘부터 7일간의 날짜 배열 생성
+  // (주 단위로 고정하면 토요일에 등록한 '내일' 일정이 다음 주로 넘어가 누락된다)
   const displayDates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(startOfWeek);
-    d.setDate(startOfWeek.getDate() + i);
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
     return getLocalDateString(d);
   });
 
