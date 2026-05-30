@@ -168,11 +168,12 @@ const ChatRoom: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <Header 
-        title={isAgent ? "일정관리 에이전트" : `채팅방 ${id}`} 
-        showBack 
-        avatar={isAgent ? 'https://api.dicebear.com/7.x/bottts/svg?seed=agent' : `https://i.pravatar.cc/150?u=${id}`} 
+      <Header
+        title={isAgent ? "일정관리 에이전트" : `채팅방 ${id}`}
+        showBack
+        avatar={isAgent ? 'https://api.dicebear.com/7.x/bottts/svg?seed=agent' : `https://i.pravatar.cc/150?u=${id}`}
         onClearHistory={isAgent ? handleClearHistory : undefined}
+        onBack={() => navigate('/')}
       />
       <div 
         ref={scrollRef}
@@ -185,9 +186,10 @@ const ChatRoom: React.FC = () => {
               <ChatBubble message={msg} />
               {msg.type === 'calendar' && (
                 <div className="ml-12 mt-2 mb-4">
-                  <WeeklyCalendar 
-                    schedules={msg.id === lastCalendarId ? lastSchedules : (msg.schedules || [])} 
-                    onDateClick={handleDateClick} 
+                  <WeeklyCalendar
+                    schedules={msg.id === lastCalendarId ? lastSchedules : (msg.schedules || [])}
+                    onDateClick={handleDateClick}
+                    onViewAll={() => navigate('/calendar')}
                   />
                 </div>
               )}

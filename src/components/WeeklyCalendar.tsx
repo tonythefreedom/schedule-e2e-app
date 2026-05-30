@@ -4,9 +4,10 @@ import { Schedule } from '../types';
 interface CalendarProps {
   schedules: Schedule[];
   onDateClick: (date: string) => void;
+  onViewAll?: () => void;
 }
 
-const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => {
+const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick, onViewAll }) => {
   console.log('WeeklyCalendar rendering with schedules:', schedules);
   const today = new Date();
 
@@ -86,8 +87,8 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
         })}
       </div>
       
-      <button 
-        onClick={() => onDateClick(getLocalDateString(today))}
+      <button
+        onClick={() => (onViewAll ? onViewAll() : onDateClick(getLocalDateString(today)))}
         className="w-full mt-4 py-2 text-[11px] text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors font-medium"
       >
         전체 캘린더 보기

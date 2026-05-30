@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { initDB } from './db';
 import { analyzeSchedule } from './gemini';
+import { checkReminders, startReminderScheduler } from './reminder';
 
 dotenv.config();
 
@@ -36,6 +37,50 @@ async function startServer() {
       }
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch schedule' });
+    }
+  });
+
+  // 일정 직접 생성 (REST). 알림 e2e 테스트에서 정확한 시각의 일정을 만들 때 사용한다.
+  app.post('/api/schedules', async (req, res) => {
+    const { title, date, time, location = '', content = '' } = req.body;
+    if (!title || !date || !time) {
+      return res.status(400).json({ error: 'title, date, time은 필수입니다.' });
+    }
+    try {
+      const result = await db.run(
+        'INSERT INTO schedules (title, date, time, location, content) VALUES (?, ?, ?, ?, ?)',
+        [title, date, time, location, content]
+      );
+      const created = await db.get('SELECT * FROM schedules WHERE id = ?', [result.lastID]);
+      res.status(201).json(created);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create schedule' });
+    }
+  });
+
+  // 일정 삭제
+  app.delete('/api/schedules/:id', async (req, res) => {
+    try {
+      const result = await db.run('DELETE FROM schedules WHERE id = ?', [req.params.id]);
+      if (result.changes && result.changes > 0) {
+        res.json({ deleted: true, id: Number(req.params.id) });
+      } else {
+        res.status(404).json({ message: 'Schedule not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to delete schedule' });
+    }
+  });
+
+  // 알림 조건을 즉시 점검하고 발송 결과를 반환한다. (스케줄러 수동 트리거 / 테스트용)
+  app.post('/api/check-reminders', async (req, res) => {
+    try {
+      const windowMs = typeof req.body?.windowMs === 'number' ? req.body.windowMs : undefined;
+      const sent = await checkReminders(db, new Date(), windowMs);
+      res.json({ sent });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to check reminders' });
     }
   });
 
@@ -130,6 +175,9 @@ async function startServer() {
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+
+  // 일정 알림(2시간 전 / 10분 전) 백그라운드 스케줄러 시작
+  startReminderScheduler(db);
 
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

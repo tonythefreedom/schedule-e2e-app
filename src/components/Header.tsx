@@ -7,9 +7,10 @@ interface HeaderProps {
   showBack?: boolean;
   avatar?: string;
   onClearHistory?: () => void;
+  onBack?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, showBack, avatar, onClearHistory }) => {
+const Header: React.FC<HeaderProps> = ({ title, showBack, avatar, onClearHistory, onBack }) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -28,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ title, showBack, avatar, onClearHistory
     <header className="sticky top-0 z-10 flex items-center justify-between h-[44px] px-4 bg-white/80 backdrop-blur-md border-b border-border">
       <div className="flex items-center gap-2">
         {showBack && (
-          <button onClick={() => navigate(-1)} className="-ml-1 text-primary">
+          <button onClick={() => (onBack ? onBack() : navigate(-1))} className="-ml-1 text-primary">
             <ChevronLeft size={28} />
           </button>
         )}

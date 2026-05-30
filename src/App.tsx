@@ -4,7 +4,7 @@ import ChatListPage from './pages/ChatListPage';
 import ChatPage from './pages/ChatPage';
 import ChatRoom from './pages/ChatRoom';
 import ScheduleDetail from './pages/ScheduleDetail';
-import WeeklyCalendar from './components/WeeklyCalendar';
+import MonthlyCalendar from './pages/MonthlyCalendar';
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/chat/:id" element={<ChatRoom />} />
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
-          <Route path="/calendar" element={<WeeklyCalendar schedules={[]} onDateClick={() => {}} />} />
+          <Route path="/calendar" element={<MonthlyCalendar />} />
         </Routes>
       </div>
     </Router>

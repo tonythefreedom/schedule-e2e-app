@@ -14,9 +14,21 @@ export async function initDB() {
       date TEXT NOT NULL,
       time TEXT NOT NULL,
       location TEXT,
-      content TEXT
+      content TEXT,
+      reminded_2h INTEGER NOT NULL DEFAULT 0,
+      reminded_10m INTEGER NOT NULL DEFAULT 0
     )
   `);
+
+  // 기존 테이블에 알림 발송 기록 컬럼이 없으면 추가한다. (마이그레이션)
+  const columns = await db.all('PRAGMA table_info(schedules)');
+  const names = columns.map((c: any) => c.name);
+  if (!names.includes('reminded_2h')) {
+    await db.exec('ALTER TABLE schedules ADD COLUMN reminded_2h INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!names.includes('reminded_10m')) {
+    await db.exec('ALTER TABLE schedules ADD COLUMN reminded_10m INTEGER NOT NULL DEFAULT 0');
+  }
 
   return db;
 }
