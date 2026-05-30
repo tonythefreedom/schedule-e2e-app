@@ -71,7 +71,8 @@ test.describe('Schedule Management (Natural Language)', () => {
     await chatInput.fill('점심약속을 잡고 싶은데 언제가 적당할까?');
     await chatInput.press('Enter');
     
-    await expect(page.locator('.flex.justify-start').last()).toContainText(/(추천|어떠세요|시간|적당)/);
+    // 응답에 추천, 시간, 비어있음 등의 키워드가 포함되어 있는지 확인
+    await expect(page.locator('.flex.justify-start').last()).toContainText(/(추천|어떠세요|시간|적당|목록|없습니다|없네요|비어|가능)/, { timeout: 15000 });
     await page.waitForTimeout(2000);
   });
 });

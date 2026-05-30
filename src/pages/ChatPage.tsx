@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { Message, Chat, Schedule } from '../types';
 import Header from '../components/Header';
 import ChatBubble from '../components/ChatBubble';
@@ -83,7 +83,7 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <Header title="일정관리 에이전트" />
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

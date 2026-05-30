@@ -25,7 +25,7 @@ const ChatListPage: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <Header title="채팅" />
       <main className="flex-1 overflow-y-auto">
         <div className="divide-y divide-gray-100">
