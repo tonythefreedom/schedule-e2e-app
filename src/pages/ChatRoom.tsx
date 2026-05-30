@@ -17,7 +17,8 @@ const ChatRoom: React.FC = () => {
 
   useEffect(() => {
     if (isAgent) {
-      fetch('http://127.0.0.1:3001/api/schedules')
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+      fetch(`${baseUrl}/schedules`)
         .then(res => res.json())
         .then(data => setSchedules(data))
         .catch(err => console.error(err));
@@ -53,7 +54,8 @@ const ChatRoom: React.FC = () => {
 
     if (isAgent) {
       try {
-        const response = await fetch('http://127.0.0.1:3001/api/chat', {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+        const response = await fetch(`${baseUrl}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: text })
