@@ -61,6 +61,11 @@
 - Rounded Corner Input Field (`border-radius: 20px`)
 - 오른쪽 끝에 전송 아이콘 버튼
 
+### Schedule Components
+- **Weekly Calendar:** 상단 날짜 선택 슬라이더, 선택된 날짜 강조 (`#007AFF` 배경)
+- **Schedule Item:** 시간, 제목, 설명 포함. 카드 스타일 (`background: #FFFFFF`, `border-radius: 12px`)
+- **Action Button:** 일정 등록 버튼, 눈에 띄는 디자인
+
 ---
 
 ## 5. CSS variables (Utility)
