@@ -1,8 +1,8 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Message, Chat, Schedule } from '../types';
 import Header from '../components/Header';
 import ChatBubble from '../components/ChatBubble';
-import { WeeklyCalendar } from '../components/WeeklyCalendar';
+import WeeklyCalendar from '../components/WeeklyCalendar';
 import { useNavigate } from 'react-router-dom';
 
 const ChatPage: React.FC = () => {

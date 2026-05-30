@@ -13,7 +13,7 @@ function App() {
           <Route path="/" element={<ChatListPage />} />
           <Route path="/chat/:id" element={<ChatPage />} />
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
-          <Route path="/calendar" element={<WeeklyCalendar />} />
+          <Route path="/calendar" element={<WeeklyCalendar schedules={[]} onDateClick={() => {}} />} />
         </Routes>
       </div>
     </Router>

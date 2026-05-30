@@ -6,7 +6,7 @@ interface CalendarProps {
   onDateClick: (date: string) => void;
 }
 
-export const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => {
+const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => {
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
@@ -81,3 +81,5 @@ export const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick
     </div>
   );
 };
+
+export default WeeklyCalendar;

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import ChatBubble from '../components/ChatBubble';
 import MessageInput from '../components/MessageInput';
-import { WeeklyCalendar } from '../components/WeeklyCalendar';
+import WeeklyCalendar from '../components/WeeklyCalendar';
 import { Message, Schedule } from '../types';
 
 const ChatRoom: React.FC = () => {
