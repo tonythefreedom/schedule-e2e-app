@@ -20,7 +20,7 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     // Load initial schedules
-    fetch('http://localhost:3001/api/schedules')
+    fetch('http://127.0.0.1:3001/api/schedules')
       .then(res => res.json())
       .then(data => setSchedules(data))
       .catch(err => console.error(err));
@@ -41,7 +41,7 @@ const ChatPage: React.FC = () => {
     setInputText('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/chat', {
+      const response = await fetch('http://127.0.0.1:3001/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputText })

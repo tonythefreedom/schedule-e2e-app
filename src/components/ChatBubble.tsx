@@ -27,7 +27,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
               />
             </div>
             <div
-              className={`max-w-[85%] p-3 rounded-2xl ${
+              className={`max-w-[85%] p-3 rounded-2xl chat-bubble agent ${
                 'bg-white text-gray-800 border border-gray-200 rounded-tl-none shadow-sm'
               }`}
             >
@@ -42,7 +42,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
       {isUser && (
         <div className="flex flex-col items-end">
           <div
-            className="max-w-[80%] p-3 rounded-2xl bg-primary text-white rounded-tr-none"
+            className="max-w-[80%] p-3 rounded-2xl chat-bubble user bg-primary text-white rounded-tr-none"
           >
             <p className="text-sm">{message.text}</p>
             <span className="text-[10px] opacity-70 mt-1 block">
