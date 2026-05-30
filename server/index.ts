@@ -43,10 +43,20 @@ async function startServer() {
     const { message } = req.body;
     
     try {
-      const analysis = await analyzeSchedule(message);
+      const existingSchedules = await db.all('SELECT * FROM schedules');
+      const analysis = await analyzeSchedule(message, existingSchedules);
       
       if (!analysis) {
         return res.json({ message: '죄송합니다. 요청을 이해하지 못했습니다.' });
+      }
+
+      if (analysis.intent === 'duplicate') {
+        const { title, date, time } = analysis.data;
+        return res.json({
+          type: 'text',
+          message: `중복된 일정이 이미 존재합니다: ${date} ${time} '${title}'. 그래도 등록하시겠습니까?`,
+          duplicateInfo: analysis.data
+        });
       }
 
       if (analysis.intent === 'create') {
@@ -70,15 +80,22 @@ async function startServer() {
         
         const filtered = schedules.filter((s: any) => {
           if (analysis.query_type === 'today') {
-            return s.date === new Date().toISOString().split('T')[0];
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return s.date === `${year}-${month}-${day}`;
           }
           if (analysis.query_type === 'tomorrow') {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-            return s.date === tomorrow.toISOString().split('T')[0];
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            return s.date === `${year}-${month}-${day}`;
           }
           if (analysis.query_type === 'person') {
-            return s.title.includes(analysis.person) || s.content.includes(analysis.person);
+            return (s.title && s.title.includes(analysis.person)) || (s.content && s.content.includes(analysis.person));
           }
           return true;
         });
@@ -87,12 +104,12 @@ async function startServer() {
           responseText = '관련된 일정이 없습니다.';
         } else {
           filtered.forEach((s: any) => {
-            responseText += `- ${s.date} ${s.time}: ${s.title} (${s.location})\n`;
+            responseText += `- ${s.date} ${s.time}: ${s.title} (${s.location || '장소 없음'})\n`;
           });
         }
 
         return res.json({
-          type: 'schedule_list',
+          type: 'calendar',
           message: responseText,
           weeklySchedules: filtered
         });
@@ -101,7 +118,7 @@ async function startServer() {
       if (analysis.intent === 'recommend' || analysis.intent === 'check_free') {
         const schedules = await db.all('SELECT * FROM schedules ORDER BY date ASC, time ASC');
         return res.json({
-          type: 'text',
+          type: 'calendar',
           message: analysis.response || '이번 주에는 목요일 오후 2시가 비어있네요. 이때는 어떠신가요?',
           weeklySchedules: schedules
         });

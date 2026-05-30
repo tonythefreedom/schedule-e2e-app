@@ -11,37 +11,21 @@ const ChatRoom: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // 상태 복원: location.state 또는 localStorage에서 메시지와 일정을 불러옴
+  // 상태 복원: location.state에서 메시지와 일정을 불러옴 (상세 페이지에서 뒤로가기 시 복원)
   const getInitialMessages = () => {
     if (location.state?.messages) return location.state.messages;
-    const saved = localStorage.getItem(`chat_messages_${id}`);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
     return [];
   };
 
   const getInitialSchedules = () => {
     if (location.state?.schedules) return location.state.schedules;
-    const saved = localStorage.getItem(`chat_schedules_${id}`);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
     return [];
   };
 
   const [messages, setMessages] = useState<Message[]>(getInitialMessages);
   const [schedules, setSchedules] = useState<Schedule[]>(getInitialSchedules);
+  const [lastSchedules, setLastSchedules] = useState<Schedule[]>(getInitialSchedules);
   const [isLoading, setIsLoading] = useState(false);
-
-  // 상태가 변경될 때마다 localStorage에 저장
-  useEffect(() => {
-    localStorage.setItem(`chat_messages_${id}`, JSON.stringify(messages));
-  }, [messages, id]);
-
-  useEffect(() => {
-    localStorage.setItem(`chat_schedules_${id}`, JSON.stringify(schedules));
-  }, [schedules, id]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isAgent = id === 'agent';
@@ -52,7 +36,13 @@ const ChatRoom: React.FC = () => {
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
       fetch(`${baseUrl}/schedules`)
         .then(res => res.json())
-        .then(data => setSchedules(data))
+        .then(data => {
+          setSchedules(data);
+          setLastSchedules(data);
+          setMessages(prev => prev.map(msg => 
+            msg.type === 'calendar' ? { ...msg, schedules: data } : msg
+          ));
+        })
         .catch(err => console.error(err));
 
       // 저장된 메시지가 없을 때만 초기 환영 메시지 로드
@@ -100,17 +90,28 @@ const ChatRoom: React.FC = () => {
         const data = await response.json();
         console.log('API response data:', data);
 
-        if (data.type === 'schedule_created' || data.type === 'view_calendar' || data.type === 'schedule_list') {
+        if (data.type === 'schedule_created' || data.type === 'view_calendar' || data.type === 'schedule_list' || data.type === 'calendar' || data.type === 'duplicate' || data.weeklySchedules) {
+          const updatedSchedules = data.weeklySchedules || schedules;
           const agentMessage: Message = {
             id: (Date.now() + 1).toString(),
-            text: data.message,
+            text: data.message || (data.type === 'text' ? '' : '일정 정보를 불러왔습니다.'),
             sender: 'agent',
             timestamp: new Date().toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit', hour12: true }),
             type: 'calendar',
-            schedules: data.weeklySchedules
+            schedules: updatedSchedules
           };
-          setMessages(prev => [...prev, agentMessage]);
-          if (data.weeklySchedules) setSchedules(data.weeklySchedules);
+          
+          setMessages(prev => {
+            const updatedPrev = prev.map(msg => 
+              msg.type === 'calendar' ? { ...msg, schedules: updatedSchedules } : msg
+            );
+            return [...updatedPrev, agentMessage];
+          });
+          
+          if (data.weeklySchedules) {
+            setSchedules(data.weeklySchedules);
+            setLastSchedules(data.weeklySchedules);
+          }
         } else {
           const agentMessage: Message = {
             id: (Date.now() + 1).toString(),
@@ -149,12 +150,29 @@ const ChatRoom: React.FC = () => {
     });
   };
 
+  const handleClearHistory = () => {
+    if (window.confirm('대화 내용을 모두 지우시겠습니까?')) {
+      const initialMessage: Message = {
+        id: 'welcome',
+        text: '안녕하세요! 일정 관리를 도와드리는 AI 에이전트입니다. "오늘 저녁 7시에 강남역에서 약속 잡아줘"와 같이 말씀해보세요.',
+        sender: 'agent',
+        timestamp: new Date().toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        type: 'text'
+      };
+      setMessages([initialMessage]);
+      navigate(location.pathname, { replace: true, state: { messages: [initialMessage], schedules } });
+    }
+  };
+
+  const lastCalendarId = [...messages].reverse().find(m => m.type === 'calendar')?.id;
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header 
         title={isAgent ? "일정관리 에이전트" : `채팅방 ${id}`} 
         showBack 
         avatar={isAgent ? 'https://api.dicebear.com/7.x/bottts/svg?seed=agent' : `https://i.pravatar.cc/150?u=${id}`} 
+        onClearHistory={isAgent ? handleClearHistory : undefined}
       />
       <div 
         ref={scrollRef}
@@ -165,10 +183,10 @@ const ChatRoom: React.FC = () => {
           return (
             <div key={msg.id}>
               <ChatBubble message={msg} />
-              {msg.type === 'calendar' && msg.schedules && (
+              {msg.type === 'calendar' && (
                 <div className="ml-12 mt-2 mb-4">
                   <WeeklyCalendar 
-                    schedules={msg.schedules} 
+                    schedules={msg.id === lastCalendarId ? lastSchedules : (msg.schedules || [])} 
                     onDateClick={handleDateClick} 
                   />
                 </div>

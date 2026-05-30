@@ -9,8 +9,6 @@ interface CalendarProps {
 const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => {
   console.log('WeeklyCalendar rendering with schedules:', schedules);
   const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
 
   const getLocalDateString = (d: Date) => {
     const year = d.getFullYear();
@@ -19,10 +17,23 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
     return `${year}-${month}-${day}`;
   };
 
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(startOfWeek);
-    date.setDate(startOfWeek.getDate() + i);
-    return getLocalDateString(date);
+  const todayStr = getLocalDateString(today);
+
+  // 날짜 문자열을 Date 객체로 안전하게 변환하는 함수 (로컬 시간 기준)
+  const parseDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  // 현재 주의 시작일(일요일) 계산
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+
+  // 현재 주 7일의 날짜 배열 생성
+  const displayDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return getLocalDateString(d);
   });
 
   return (
@@ -30,19 +41,17 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold text-gray-800 flex items-center">
           <span className="w-1 h-4 bg-primary rounded-full mr-2"></span>
-          주간 일정 브리핑
+          일정 브리핑
         </h3>
-        <span className="text-[10px] text-gray-400">이번 주</span>
+        <span className="text-[10px] text-gray-400">요약</span>
       </div>
       
       <div className="space-y-3">
-        {weekDays.map((dateStr) => {
+        {displayDates.map((dateStr) => {
           const daySchedules = schedules.filter(s => s.date === dateStr);
-          const date = new Date(dateStr);
-          const isToday = dateStr === getLocalDateString(today);
+          const date = parseDate(dateStr);
+          const isToday = dateStr === todayStr;
           const dayName = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
-
-          if (daySchedules.length === 0 && !isToday) return null;
 
           return (
             <div 
@@ -59,7 +68,7 @@ const WeeklyCalendar: React.FC<CalendarProps> = ({ schedules, onDateClick }) => 
                   daySchedules.map((s, idx) => (
                     <div 
                       key={idx}
-                      onClick={() => onDateClick(s.id)}
+                      onClick={() => onDateClick(s.id.toString())}
                       className="group cursor-pointer"
                     >
                       <div className="text-xs font-medium text-gray-800 group-hover:text-primary transition-colors">

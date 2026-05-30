@@ -22,6 +22,9 @@ test.describe('Schedule Management (Natural Language)', () => {
     
     // 응답 확인 및 시각적 대기 (assistant 메시지 버블 타겟팅)
     // 새로운 메시지가 추가될 때까지 대기하기 위해 카운트를 활용하거나 특정 텍스트 대기
+    await page.waitForTimeout(5000);
+    const lastMessage = await page.locator('.flex.justify-start').last().innerText();
+    console.log('Last message:', lastMessage);
     await expect(page.locator('.flex.justify-start').last()).toContainText(/(등록|완료|확인|잡아드렸습니다)/, { timeout: 15000 });
     await page.waitForTimeout(1000);
 
@@ -32,7 +35,12 @@ test.describe('Schedule Management (Natural Language)', () => {
     await expect(page.locator('.flex.justify-start').last()).toContainText(/(등록|완료|확인|잡아드렸습니다)/, { timeout: 15000 });
     await page.waitForTimeout(1000);
 
-    // 3. 오늘 일정 확인
+  });
+
+  test('주간 일정 및 빈 시간 확인', async ({ page }) => {
+    const chatInput = page.locator('input[type="text"]');
+
+    // 1. 오늘 일정 확인
     await chatInput.fill('나 오늘 일정이 어떻게 되지?');
     await chatInput.press('Enter');
     
@@ -40,34 +48,30 @@ test.describe('Schedule Management (Natural Language)', () => {
     await expect(page.locator('.flex.justify-start').last()).toContainText('강남역');
     await page.waitForTimeout(1000);
 
-    // 4. 특정 인물과의 약속 확인
+    // 2. 특정 인물과의 약속 확인
     await chatInput.fill('내일 점심 약속이 있었던 거 같은데 확인해 줄래?');
     await chatInput.press('Enter');
     
     await expect(page.locator('.flex.justify-start').last()).toContainText('병대', { timeout: 15000 });
     await expect(page.locator('.flex.justify-start').last()).toContainText('부엉이식당');
     await page.waitForTimeout(1000);
-  });
 
-  test('주간 일정 및 빈 시간 확인', async ({ page }) => {
-    const chatInput = page.locator('input[type="text"]');
-
-    // 1. 주간 일정 조회
+    // 3. 주간 일정 조회
     await chatInput.fill('내 주간 일정 보여줘');
     await chatInput.press('Enter');
     
-    // 주간 일정에 대한 응답이 오는지 확인
-    await expect(page.locator('.flex.justify-start').last()).toContainText(/(월|화|수|목|금|토|일|이번 주|일정)/);
+    // 주간 일정에 대한 응답이 오는지 확인 (LLM 응답 지연을 고려해 충분한 타임아웃 적용)
+    await expect(page.locator('.flex.justify-start').last()).toContainText(/(월|화|수|목|금|토|일|이번 주|일정)/, { timeout: 15000 });
     await page.waitForTimeout(2000);
 
-    // 2. 빈 시간 확인 및 추천
+    // 4. 빈 시간 확인 및 추천
     await chatInput.fill('이번주에 언제 일정이 비는 날이 있지?');
     await chatInput.press('Enter');
-    
-    await expect(page.locator('.flex.justify-start').last()).toContainText(/(비어|가능|추천|없습니다|목록)/);
+
+    await expect(page.locator('.flex.justify-start').last()).toContainText(/(비어|가능|추천|없습니다|목록)/, { timeout: 15000 });
     await page.waitForTimeout(2000);
 
-    // 3. 약속 시간 추천 요청
+    // 5. 약속 시간 추천 요청
     await chatInput.fill('점심약속을 잡고 싶은데 언제가 적당할까?');
     await chatInput.press('Enter');
     
