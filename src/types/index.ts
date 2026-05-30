@@ -1,7 +1,7 @@
 export interface Message {
   id: string;
   text: string;
-  sender: 'user' | 'other' | 'agent';
+  sender: 'user' | 'other' | 'agent' | 'me';
   timestamp: string;
   type?: 'text' | 'calendar';
   schedules?: Schedule[];
@@ -13,6 +13,8 @@ export interface Chat {
   lastMessage: string;
   avatar: string;
   timestamp: string;
+  time?: string;
+  unreadCount?: number;
   isAgent?: boolean;
 }
 

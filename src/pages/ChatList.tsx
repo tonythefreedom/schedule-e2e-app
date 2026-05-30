@@ -45,7 +45,7 @@ const ChatList: React.FC = () => {
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center mb-0.5">
                 <h3 className="font-semibold text-[16px] truncate">{chat.name}</h3>
-                <span className="text-[12px] text-text-secondary">{chat.time}</span>
+                <span className="text-[12px] text-text-secondary">{chat.time || chat.timestamp}</span>
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-[14px] text-text-secondary truncate">{chat.lastMessage}</p>

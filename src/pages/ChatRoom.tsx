@@ -41,7 +41,7 @@ const ChatRoom: React.FC = () => {
     const newMessage: Message = {
       id: Date.now().toString(),
       text,
-      sender: 'me',
+      sender: 'user',
       timestamp: new Date().toLocaleTimeString('ko-KR', {
         hour: 'numeric',
         minute: '2-digit',
