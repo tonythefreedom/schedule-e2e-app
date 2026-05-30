@@ -75,8 +75,8 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const handleDateClick = (date: string) => {
-    const daySchedule = schedules.find(s => s.date === date);
+  const handleDateClick = (date: string, msgSchedules: Schedule[]) => {
+    const daySchedule = msgSchedules.find(s => s.date === date);
     if (daySchedule) {
       navigate(`/schedule/${daySchedule.id}`);
     }
@@ -94,7 +94,7 @@ const ChatPage: React.FC = () => {
               <div className="ml-12 mt-2">
                 <WeeklyCalendar 
                   schedules={msg.schedules} 
-                  onDateClick={handleDateClick} 
+                  onDateClick={(date) => handleDateClick(date, msg.schedules!)} 
                 />
               </div>
             )}
